@@ -60,7 +60,7 @@ public class MovePane {
         private int SPEED; 
         private int BLINK;
         private Direction currentDirection = Direction.None; 
-        
+        private double lastUsedSkillTime = -1;
         public TestPane(Object o) {
         	
         	/* creates the image on the map
@@ -75,7 +75,7 @@ public class MovePane {
             add(pool);
             
             this.SPEED = 5; // will depend on the stats of the unit that's moving
-            this.BLINK = 50; // depends on stats of blinking/flashing skill
+            this.BLINK = 200; // depends on stats of blinking/flashing skill
 
             moveTimer = new Timer(20, new ActionListener() {
                 @Override
@@ -106,7 +106,6 @@ public class MovePane {
                         default:
                         	break;
                     }
-                 //   System.out.println(SPEED);
                  //   SPEED = Math.max(1, SPEED*2);
 
                     if (bounds.x < 0) {
@@ -124,7 +123,17 @@ public class MovePane {
 
                 }
                 
+                // blinks unit a short distance across map on 3 second cooldown!
                 public void blinkMove(Rectangle bounds){
+                	 double now = System.currentTimeMillis();
+                	 if(lastUsedSkillTime > 0 && (now - lastUsedSkillTime)/1000 < 3){
+                		 System.out.println("SKILL IS ON COOLDOWN!!");
+                		 return;
+                	 }
+                	 else{
+                		 lastUsedSkillTime = now;
+                		 System.out.println("BLINKED!!");
+                	 }
                 	 switch (currentDirection) {
                      	case Up:
                          	bounds.y -= BLINK;
