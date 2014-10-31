@@ -48,7 +48,7 @@ public class MovePane {
 
     public enum Direction {
 
-        None, Up, Down, Left, Right;
+        None, Up, Down, Left, Right, Blink;
     }
 
     @SuppressWarnings("serial")
@@ -58,6 +58,9 @@ public class MovePane {
         private Timer moveTimer;
         private Direction moveDirection = Direction.None;
         private int SPEED; 
+        private int BLINK;
+        private Direction currentDirection = Direction.None; 
+        
         public TestPane(Object o) {
         	
         	/* creates the image on the map
@@ -71,9 +74,10 @@ public class MovePane {
             pool.add(mobby);
             add(pool);
             
-            this.SPEED = 10; // will depend on the stats of the unit that's moving
+            this.SPEED = 5; // will depend on the stats of the unit that's moving
+            this.BLINK = 50; // depends on stats of blinking/flashing skill
 
-            moveTimer = new Timer(40, new ActionListener() {
+            moveTimer = new Timer(20, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Container parent = mobby.getParent();
@@ -83,16 +87,22 @@ public class MovePane {
                     switch (moveDirection) {
                         case Up:
                             bounds.y -= SPEED;
+                            currentDirection = Direction.Up;
                             break;
                         case Down:
                             bounds.y += SPEED;
+                            currentDirection = Direction.Down;
                             break;
                         case Left:
                             bounds.x -= SPEED;
+                            currentDirection = Direction.Left;
                             break;
                         case Right:
                             bounds.x += SPEED;
+                            currentDirection = Direction.Right;
                             break;
+                        case Blink:
+                        	 blinkMove(bounds);
                         default:
                         	break;
                     }
@@ -113,6 +123,27 @@ public class MovePane {
                     mobby.setBounds(bounds);
 
                 }
+                
+                public void blinkMove(Rectangle bounds){
+                	 switch (currentDirection) {
+                     	case Up:
+                         	bounds.y -= BLINK;
+                         	break;
+                     	case Down:
+                    	 	bounds.y += BLINK;
+                         	break;
+                     	case Left:
+                         	bounds.x -= BLINK;
+                         	break;
+                     	case Right:
+                         	bounds.x += BLINK;
+                         	break;
+                     	case Blink:
+                    	 
+                     	default:
+                     		break;
+                	 }
+                }
             });
             moveTimer.setInitialDelay(0);
             InputMap im = pool.getInputMap(WHEN_IN_FOCUSED_WINDOW);
@@ -126,17 +157,21 @@ public class MovePane {
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, true), "LeftReleased");
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "RightPressed");
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, true), "RightReleased");
-
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0, false), "ZPressed");
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0, true), "ZReleased");
+            
             KeyUpAction keyUpAction = new KeyUpAction();
             am.put("UpReleased", keyUpAction);
             am.put("DownReleased", keyUpAction);
             am.put("LeftReleased", keyUpAction);
             am.put("RightReleased", keyUpAction);
-
+            am.put("ZReleased", keyUpAction);
+            
             am.put("UpPressed", new MoveAction(Direction.Up));
             am.put("DownPressed", new MoveAction(Direction.Down));
             am.put("LeftPressed", new MoveAction(Direction.Left));
             am.put("RightPressed", new MoveAction(Direction.Right));
+            am.put("ZPressed", new MoveAction(Direction.Blink));
 
         }
 
